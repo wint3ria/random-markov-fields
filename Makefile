@@ -4,11 +4,13 @@ LDFLAGS=
 VPATH=src
 
 EXEC=cmkv
-SRC=src/main.cpp
+
+SRCS=$(wildcard src/*.cpp)
+OBJS=$(SRCS:.cpp=.o)
 
 all: $(EXEC)
 
-cmkv: main.o
+cmkv: $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:

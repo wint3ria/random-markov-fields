@@ -1,20 +1,20 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -Werror -pedantic -std=c++17
+CXXFLAGS=-Wall -Wextra -Werror -pedantic -std=c++17 -O0 -g3
 LDFLAGS=
 VPATH=src
 
 EXEC=cmkv
 
 SRCS=$(wildcard src/*.cpp)
-OBJS=$(SRCS:.cpp=.o)
+OBJS=$(subst .cpp,.o,$(SRCS))
 
 all: $(EXEC)
 
 cmkv: $(OBJS)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(CXXFLAGS)
 
 clean:
-	rm -rf *.o
+	rm -rf $(OBJS)
 
 mrproper: clean
 	rm -rf $(EXEC)

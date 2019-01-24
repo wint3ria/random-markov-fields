@@ -7,7 +7,7 @@ namespace mr_fields
         return static_cast<unsigned>(x);
     }
 
-    static inline int increment(int &c, const Person&, size_t)
+    static inline void increment(int &c, const Person&, size_t)
     {
         c++;
     }

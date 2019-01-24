@@ -15,6 +15,8 @@ namespace mr_fields
     unsigned food_criterion(const state& s, const std::vector<Person>& persons);
 
     unsigned hobby_criterion(const state& s, const std::vector<Person>& persons);
+
+    unsigned bathtube_criterion(const state& s, const std::vector<Person>& persons);
 }
 
 #endif //MARKOV_RANDOM_FIELDS_CRITERIONS_HPP

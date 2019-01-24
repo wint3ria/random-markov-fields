@@ -41,14 +41,24 @@ namespace mr_fields
                               acceptance_law P=exponential_law)
     {
         state s = random_state(persons);
-        unsigned energy = compute_energy(s, persons, parity_criterion);
+        unsigned energy = compute_energy(s, persons, parity_criterion,
+                                         cleanliness_criterion,
+                                         hobby_criterion,
+                                         food_criterion,
+                                         bathtube_criterion);
         state opt = s;
         unsigned opt_energy = energy;
 
         for (size_t k = 0; k < k_max && energy > energy_min; k++)
         {
             state new_s = s.compute_neighbor();
-            unsigned new_energy = compute_energy(new_s, persons, parity_criterion);
+            unsigned new_energy = compute_energy(new_s, persons,
+                                                 parity_criterion,
+                                                 cleanliness_criterion,
+                                                 hobby_criterion,
+                                                 food_criterion,
+                                                 bathtube_criterion
+            );
             if (new_energy < energy || ((double)rand()) / RAND_MAX < P(new_energy - energy, temp(k / k_max)))
             {
                 s = new_s;

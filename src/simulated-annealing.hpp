@@ -20,10 +20,23 @@ namespace mr_fields
     }
     unsigned compute_energy(const state&, const std::vector<Person>&) { return 0; }
 
-    double constant_temperature(unsigned)
+    double constant_temperature(double)
     {
         return 1;
     }
+
+    struct geometric_temperature
+    {
+        double operator () (double)
+        {
+            invocations++;
+            return std::pow(lambda, invocations) * start_temperature;
+        }
+
+        double lambda=0.99;
+        double start_temperature=5;
+        size_t invocations=0;
+    };
 
     double exponential_law(unsigned delta_e, double temperature)
     {
@@ -59,7 +72,7 @@ namespace mr_fields
                                                  food_criterion,
                                                  bathtube_criterion
             );
-            if (new_energy < energy || ((double)rand()) / RAND_MAX < P(new_energy - energy, temp(k / k_max)))
+            if (new_energy < energy || ((double)rand()) / RAND_MAX < P(new_energy - energy, temp((double)k / k_max)))
             {
                 s = new_s;
                 energy = new_energy;

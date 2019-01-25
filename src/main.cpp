@@ -16,14 +16,14 @@ int main()
 {
     std::ifstream in("./tests/600a.txt");
     auto persons = mr_fields::parse_from_file(in);
-    mr_fields::state s = mr_fields::simulated_annealing(persons, 1000000, 40);
+    auto temperature_schedule = mr_fields::geometric_temperature();
+    mr_fields::state s = mr_fields::simulated_annealing(persons, 1000000, 170, temperature_schedule);
     std::cout << "Final energy: " << mr_fields::compute_energy(s, persons,
                                                                mr_fields::parity_criterion,
                                                                mr_fields::cleanliness_criterion,
                                                                mr_fields::food_criterion,
                                                                mr_fields::hobby_criterion,
-                                                               mr_fields::bathtube_criterion
-              )
+                                                               mr_fields::bathtube_criterion)
               << std::endl;
     return 0;
 }

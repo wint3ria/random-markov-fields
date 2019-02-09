@@ -14,11 +14,21 @@
 namespace mr_fields
 {
     template<typename first_criterion, typename... criterions>
-    unsigned compute_energy(const state& s, const std::vector<Person>& persons, first_criterion c, criterions... cts)
+    inline unsigned compute_energy(const state& s, const std::vector<Person>& persons, first_criterion c, criterions... cts)
     {
         return c(s, persons) + compute_energy(s, persons, cts...);
     }
-    unsigned compute_energy(const state&, const std::vector<Person>&) { return 0; }
+    inline unsigned compute_energy(const state&, const std::vector<Person>&) { return 0; }
+
+    inline unsigned default_energy_eval(const state& s, const std::vector<Person>& persons)
+    {
+        return compute_energy(s, persons,
+                              parity_criterion,
+                              cleanliness_criterion,
+                              food_criterion,
+                              hobby_criterion,
+                              bathtube_criterion);
+    }
 
     double constant_temperature(double)
     {
@@ -45,33 +55,26 @@ namespace mr_fields
 
     using temperature_schedule_t = decltype(constant_temperature);
     using acceptance_law_t = decltype(exponential_law);
+    using energy_eval_t = decltype(default_energy_eval);
 
     template<typename temperature_schedule=temperature_schedule_t,
-             typename acceptance_law=acceptance_law_t>
+             typename acceptance_law=acceptance_law_t,
+             typename energy_eval=energy_eval_t>
     state simulated_annealing(const std::vector<Person>& persons,
                               size_t k_max=std::numeric_limits<size_t>::max(), unsigned energy_min=0,
                               temperature_schedule temp=constant_temperature,
-                              acceptance_law P=exponential_law)
+                              acceptance_law P=exponential_law,
+                              energy_eval E=default_energy_eval)
     {
         state s = random_state(persons);
-        unsigned energy = compute_energy(s, persons, parity_criterion,
-                                         cleanliness_criterion,
-                                         hobby_criterion,
-                                         food_criterion,
-                                         bathtube_criterion);
+        unsigned energy = E(s, persons);
         state opt = s;
         unsigned opt_energy = energy;
 
         for (size_t k = 0; k < k_max && energy > energy_min; k++)
         {
             state new_s = s.compute_neighbor();
-            unsigned new_energy = compute_energy(new_s, persons,
-                                                 parity_criterion,
-                                                 cleanliness_criterion,
-                                                 hobby_criterion,
-                                                 food_criterion,
-                                                 bathtube_criterion
-            );
+            unsigned new_energy = E(new_s, persons);
             if (new_energy < energy || ((double)rand()) / RAND_MAX < P(new_energy - energy, temp((double)k / k_max)))
             {
                 s = new_s;

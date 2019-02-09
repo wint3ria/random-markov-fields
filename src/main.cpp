@@ -12,18 +12,28 @@ std::ostream& operator <<(std::ostream& o, const mr_fields::Person& p)
 
 mr_fields::rand_init ri_;
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::ifstream in("./tests/600a.txt");
+    if (argc != 3)
+    {
+        std::cerr << "usage: " << argv[0] << " [filein] [fileout]" << std::endl;
+        exit(1);
+    }
+    std::ifstream in(argv[1]);
+    if (!in.good())
+    {
+        std::cerr << "Invalid input file: " << argv[1] << std::endl;
+        exit(2);
+    }
+    std::ofstream out(argv[2]);
+    if (!out.good())
+    {
+        std::cerr << "Invalid output file: " << argv[2] << std::endl;
+        exit(3);
+    }
     auto persons = mr_fields::parse_from_file(in);
     auto temperature_schedule = mr_fields::geometric_temperature();
     mr_fields::state s = mr_fields::simulated_annealing(persons, 1000000, 170, temperature_schedule);
-    std::cout << "Final energy: " << mr_fields::compute_energy(s, persons,
-                                                               mr_fields::parity_criterion,
-                                                               mr_fields::cleanliness_criterion,
-                                                               mr_fields::food_criterion,
-                                                               mr_fields::hobby_criterion,
-                                                               mr_fields::bathtube_criterion)
-              << std::endl;
+    std::cout << "Final energy: " << mr_fields::default_energy_eval(s, persons) << std::endl;
     return 0;
 }

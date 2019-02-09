@@ -4,13 +4,25 @@
 # include "simulated-annealing.hpp"
 # include "criterions.hpp"
 
-std::ostream& operator <<(std::ostream& o, const mr_fields::Person& p)
+mr_fields::rand_init ri_;
+
+std::ostream& operator << (std::ostream& o, const mr_fields::Person& p)
 {
     o << p.sex << ' ' << p.cleanliness << ' ' << p.food << ' ' << p.hobby;
     return o;
 }
 
-mr_fields::rand_init ri_;
+std::ostream& operator << (std::ostream& o, const mr_fields::state& s)
+{
+    for (auto flat : s.flats)
+    {
+        o << flat[0];
+        for (unsigned i = 1; i < flat.size(); i++)
+            o << " " << flat[i];
+        o << std::endl;
+    }
+    return o;
+}
 
 int main(int argc, char* argv[])
 {
@@ -33,7 +45,9 @@ int main(int argc, char* argv[])
     }
     auto persons = mr_fields::parse_from_file(in);
     auto temperature_schedule = mr_fields::geometric_temperature();
-    mr_fields::state s = mr_fields::simulated_annealing(persons, 1000000, 170, temperature_schedule);
+    unsigned min_energy = persons.size() == 600 ? 160 : 30;
+    mr_fields::state s = mr_fields::simulated_annealing(persons, 1000000, min_energy, temperature_schedule);
     std::cout << "Final energy: " << mr_fields::default_energy_eval(s, persons) << std::endl;
+    out << s;
     return 0;
 }

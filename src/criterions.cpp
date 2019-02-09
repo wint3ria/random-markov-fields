@@ -15,8 +15,8 @@ namespace mr_fields
     template<typename counting_rule=decltype(increment),
              typename update_rule=decltype(identity)>
     unsigned counting_criterion(const state& s, const std::vector<Person>& persons,
-                                counting_rule count=increment,
-                                update_rule update=identity)
+                                const counting_rule& count=increment,
+                                const update_rule& update=identity)
     {
         int c;
         unsigned energy = 0;
@@ -33,19 +33,23 @@ namespace mr_fields
     template<typename result_t>
     unsigned basic_criterion(const state& s,
                              const std::vector<Person>& persons,
-                             std::function<result_t(const Person&)> getter)
+                             const std::function<result_t(const Person&)>& getter)
     {
         result_t t;
         unsigned energy = 0;
+        unsigned counts[3];
+        unsigned *ptr = counts;
         for (auto flat : s.flats)
         {
-            t = getter(persons[flat[0]]);
-            bool cont = true;
-            for (unsigned i = 1; i < 6 && cont; i++)
+            for (unsigned i = 0; i < 3; i++)
+                counts[i] = 0;
+            for (unsigned i = 0; i < 6; i++)
             {
-                cont = getter(persons[flat[i]]) == t;
+                t = getter(persons[flat[i]]);
+                counts[static_cast<unsigned>(t) - 1]++;
             }
-            energy += (unsigned)(!cont);
+            unsigned max = *std::max_element(ptr, ptr + 3);
+            energy += 6 - max;
         }
         return energy;
     }
